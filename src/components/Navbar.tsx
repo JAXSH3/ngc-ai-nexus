@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Globe, User } from 'lucide-react';
@@ -13,7 +12,11 @@ const Navbar: React.FC = () => {
       <div className="flex h-16 items-center px-6 md:px-8">
         {/* Logo - visible on all screens */}
         <Link to="/" className="mr-6 flex items-center gap-2 font-semibold text-2xl text-foreground">
-          <img src="/lovable-uploads/7ecd3967-9f67-4782-915d-fec3d05825f6.png" alt="NGC Logo" className="h-8 w-auto" />
+          <img 
+            src="/lovable-uploads/3e98d7de-e2bf-46fb-8a20-1251b23ffac0.png" 
+            alt="NGC Logo" 
+            className="h-8 w-auto" 
+          />
         </Link>
 
         {/* Search bar - centered */}
