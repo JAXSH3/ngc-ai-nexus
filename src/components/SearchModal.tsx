@@ -11,7 +11,7 @@ import {
   CommandList,
   CommandSeparator
 } from "@/components/ui/command";
-import { SearchCheck, SearchX, Tool, FileText, Code, Layers } from 'lucide-react';
+import { SearchCheck, SearchX, Wrench, FileText, Code, Layers } from 'lucide-react';
 import { Dialog } from '@/components/ui/dialog';
 
 // Sample data - in a real implementation, this would come from your backend
@@ -95,7 +95,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, setOpen }) => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'tool':
-        return <Tool className="h-4 w-4 mr-2" />;
+        return <Wrench className="h-4 w-4 mr-2" />;
       case 'prompt':
         return <Code className="h-4 w-4 mr-2" />;
       case 'paper':
