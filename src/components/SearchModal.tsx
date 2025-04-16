@@ -17,23 +17,23 @@ import { Dialog } from '@/components/ui/dialog';
 // Sample data - in a real implementation, this would come from your backend
 const searchableItems = [
   // AI Tools
-  { id: 't1', title: 'ChatGPT', description: 'Conversational AI assistant for natural language tasks', type: 'tool', category: 'AI Assistant', url: '/explore?type=tools' },
-  { id: 't2', title: 'Stable Diffusion', description: 'Generate stunning images from text descriptions', type: 'tool', category: 'Image Generation', url: '/explore?type=tools' },
-  { id: 't3', title: 'Midjourney', description: 'AI image generation with artistic style control', type: 'tool', category: 'Image Generation', url: '/explore?type=tools' },
-  { id: 't4', title: 'Claude', description: 'AI assistant by Anthropic with strong reasoning abilities', type: 'tool', category: 'AI Assistant', url: '/explore?type=tools' },
+  { id: 't1', title: 'ChatGPT', description: 'Conversational AI assistant for natural language tasks', type: 'tool', category: 'AI Assistant', tags: ['chat', 'language', 'writing'], url: '/explore?type=tools' },
+  { id: 't2', title: 'Stable Diffusion', description: 'Generate stunning images from text descriptions', type: 'tool', category: 'Image Generation', tags: ['image', 'art', 'generation'], url: '/explore?type=tools' },
+  { id: 't3', title: 'Midjourney', description: 'AI image generation with artistic style control', type: 'tool', category: 'Image Generation', tags: ['image', 'art', 'creative'], url: '/explore?type=tools' },
+  { id: 't4', title: 'Claude', description: 'AI assistant by Anthropic with strong reasoning abilities', type: 'tool', category: 'AI Assistant', tags: ['reasoning', 'analysis', 'chat'], url: '/explore?type=tools' },
   
   // Prompts
-  { id: 'p1', title: 'Research Paper Analyzer', description: 'Extract key insights from academic papers quickly', type: 'prompt', category: 'Research', url: '/explore?type=prompts' },
-  { id: 'p2', title: 'Code Refactoring', description: 'Transform legacy code into clean, modern patterns', type: 'prompt', category: 'Development', url: '/explore?type=prompts' },
-  { id: 'p3', title: 'Data Visualization Helper', description: 'Generate code for beautiful data visualizations', type: 'prompt', category: 'Data Science', url: '/explore?type=prompts' },
+  { id: 'p1', title: 'Research Paper Analyzer', description: 'Extract key insights from academic papers quickly', type: 'prompt', category: 'Research', tags: ['academic', 'research', 'analysis'], url: '/explore?type=prompts' },
+  { id: 'p2', title: 'Code Refactoring', description: 'Transform legacy code into clean, modern patterns', type: 'prompt', category: 'Development', tags: ['code', 'programming', 'optimization'], url: '/explore?type=prompts' },
+  { id: 'p3', title: 'Data Visualization Helper', description: 'Generate code for beautiful data visualizations', type: 'prompt', category: 'Data Science', tags: ['data', 'visualization', 'charts'], url: '/explore?type=prompts' },
   
   // Papers
-  { id: 'r1', title: 'Attention Is All You Need', description: 'Introduces the transformer architecture that revolutionized NLP', type: 'paper', category: 'NLP', url: '/explore?type=papers' },
-  { id: 'r2', title: 'GPT-4 Technical Report', description: 'Detailed analysis of GPT-4\'s capabilities and limitations', type: 'paper', category: 'AI Models', url: '/explore?type=papers' },
+  { id: 'r1', title: 'Attention Is All You Need', description: 'Introduces the transformer architecture that revolutionized NLP', type: 'paper', category: 'NLP', tags: ['machine learning', 'nlp', 'transformer'], url: '/explore?type=papers' },
+  { id: 'r2', title: 'GPT-4 Technical Report', description: 'Detailed analysis of GPT-4\'s capabilities and limitations', type: 'paper', category: 'AI Models', tags: ['gpt', 'ai', 'large language model'], url: '/explore?type=papers' },
   
   // Projects
-  { id: 'pr1', title: 'Open Source LLM', description: 'A community-maintained large language model', type: 'project', category: 'Open Source', url: '/explore?type=projects' },
-  { id: 'pr2', title: 'AI Image Classifier', description: 'Train custom classifiers with minimal data', type: 'project', category: 'Computer Vision', url: '/explore?type=projects' },
+  { id: 'pr1', title: 'Open Source LLM', description: 'A community-maintained large language model', type: 'project', category: 'Open Source', tags: ['llm', 'machine learning', 'community'], url: '/explore?type=projects' },
+  { id: 'pr2', title: 'AI Image Classifier', description: 'Train custom classifiers with minimal data', type: 'project', category: 'Computer Vision', tags: ['image', 'classification', 'machine learning'], url: '/explore?type=projects' },
 ];
 
 interface SearchModalProps {
@@ -46,43 +46,73 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, setOpen }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(searchableItems);
 
-  // Mock AI-powered search - in a real implementation, this would use a more sophisticated algorithm
-  // or potentially integrate with an AI service like OpenAI
+  // Enhanced AI-powered search algorithm
   useEffect(() => {
     if (!query) {
       setResults(searchableItems);
       return;
     }
 
-    // Simulate AI understanding with a more sophisticated search
-    const lowerQuery = query.toLowerCase();
+    // Normalize and preprocess query
+    const normalizedQuery = query.toLowerCase().trim();
     
-    // Perform "intelligent" search that understands semantics, not just keywords
+    // Advanced semantic search with multiple matching strategies
     const filtered = searchableItems.filter((item) => {
-      // Check direct matches
-      const titleMatch = item.title.toLowerCase().includes(lowerQuery);
-      const descMatch = item.description.toLowerCase().includes(lowerQuery);
-      const categoryMatch = item.category.toLowerCase().includes(lowerQuery);
-      const typeMatch = item.type.toLowerCase().includes(lowerQuery);
+      // Exact and partial matching
+      const titleMatch = item.title.toLowerCase().includes(normalizedQuery);
+      const descriptionMatch = item.description.toLowerCase().includes(normalizedQuery);
+      const categoryMatch = item.category.toLowerCase().includes(normalizedQuery);
+      const tagMatch = item.tags.some(tag => tag.toLowerCase().includes(normalizedQuery));
       
-      // Semantic understanding (simple simulation)
-      const isGenerationTool = 
-        (lowerQuery.includes('image') || lowerQuery.includes('picture') || lowerQuery.includes('art')) && 
-        (item.category === 'Image Generation');
-        
-      const isAssistantTool = 
-        (lowerQuery.includes('chat') || lowerQuery.includes('talk') || lowerQuery.includes('assistant')) && 
-        (item.category === 'AI Assistant');
-        
-      const isDataTool = 
-        (lowerQuery.includes('data') || lowerQuery.includes('visualization') || lowerQuery.includes('chart')) && 
-        (item.category === 'Data Science');
-        
-      return titleMatch || descMatch || categoryMatch || typeMatch || 
-             isGenerationTool || isAssistantTool || isDataTool;
+      // Semantic intent matching
+      const intentMatchers = [
+        // Image-related queries
+        {
+          keywords: ['image', 'art', 'picture', 'generate', 'drawing', 'visual'],
+          match: () => item.category === 'Image Generation' || item.tags.includes('image')
+        },
+        // Coding and development queries
+        {
+          keywords: ['code', 'programming', 'develop', 'refactor', 'optimize'],
+          match: () => item.category === 'Development' || item.tags.includes('code')
+        },
+        // Research and academic queries
+        {
+          keywords: ['research', 'paper', 'academic', 'study', 'analysis'],
+          match: () => item.type === 'paper' || item.category === 'Research'
+        },
+        // AI assistant and chat queries
+        {
+          keywords: ['chat', 'assistant', 'conversation', 'help', 'talk'],
+          match: () => item.category === 'AI Assistant' || item.tags.includes('chat')
+        }
+      ];
+
+      // Check intent matchers
+      const intentMatch = intentMatchers.some(matcher => 
+        matcher.keywords.some(keyword => normalizedQuery.includes(keyword)) && matcher.match()
+      );
+      
+      // Scoring mechanism for ranking results
+      const score = [
+        titleMatch ? 5 : 0,
+        descriptionMatch ? 3 : 0,
+        categoryMatch ? 2 : 0,
+        tagMatch ? 2 : 0,
+        intentMatch ? 4 : 0
+      ].reduce((a, b) => a + b, 0);
+
+      return score > 0;
     });
 
-    setResults(filtered);
+    // Sort results by relevance score (you could implement a more sophisticated ranking algorithm)
+    const sortedResults = filtered.sort((a, b) => {
+      const scoreA = a.title.toLowerCase().includes(normalizedQuery) ? 10 : 0;
+      const scoreB = b.title.toLowerCase().includes(normalizedQuery) ? 10 : 0;
+      return scoreB - scoreA;
+    });
+
+    setResults(sortedResults);
   }, [query]);
 
   // Handle selection of an item
@@ -110,7 +140,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, setOpen }) => {
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput 
-        placeholder="Search AI tools, prompts, papers, projects..." 
+        placeholder="Search AI tools, prompts, papers, projects... (Try natural language)" 
         value={query}
         onValueChange={setQuery}
       />
@@ -118,7 +148,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, setOpen }) => {
         <CommandEmpty>
           <div className="flex items-center justify-center py-6">
             <SearchX className="h-5 w-5 mr-2 text-muted-foreground" />
-            <span>No results found. Try a different search.</span>
+            <span>No results found. Try a different search or be more descriptive.</span>
           </div>
         </CommandEmpty>
         
