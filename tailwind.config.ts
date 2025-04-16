@@ -52,6 +52,14 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+        ngc: {
+          indigo: '#4F46E5',
+          cyan: '#06B6D4',
+          dark: '#1F2937',
+          light: '#F9FAFB',
+          'card-bg': '#18181b',
+          'sidebar-active': '#0ea5e9',
+        },
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
