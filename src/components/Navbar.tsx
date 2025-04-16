@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Globe, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import UserAvatar from '@/components/UserAvatar';
+import SearchModal from '@/components/SearchModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,28 @@ const Navbar: React.FC = () => {
   // In a real app, you would get this from your auth provider
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user] = useState({ name: 'Alex Johnson' });
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Handle keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  // Handle search input click
+  const handleSearchClick = () => {
+    setSearchOpen(true);
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-sm">
@@ -32,13 +55,21 @@ const Navbar: React.FC = () => {
 
         {/* Search bar - centered */}
         <div className="flex-1 flex justify-center">
-          <div className="ngc-search-bar w-full max-w-lg">
+          <div 
+            className="ngc-search-bar w-full max-w-lg flex items-center px-3 h-10 rounded-md border border-input cursor-pointer"
+            onClick={handleSearchClick}
+            role="button"
+            tabIndex={0}
+          >
             <Search className="mr-2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search anything"
-              className="border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
+            <div className="text-sm text-muted-foreground">
+              Search anything... (Press Ctrl+K)
+            </div>
+            <div className="ml-auto text-xs text-muted-foreground hidden md:block">
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </div>
           </div>
         </div>
 
@@ -98,6 +129,9 @@ const Navbar: React.FC = () => {
           )}
         </div>
       </div>
+      
+      {/* AI-powered search modal */}
+      <SearchModal open={searchOpen} setOpen={setSearchOpen} />
     </header>
   );
 };
