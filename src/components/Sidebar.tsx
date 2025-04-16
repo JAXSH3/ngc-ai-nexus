@@ -8,8 +8,10 @@ import {
   Users,
   PenSquare,
   Settings,
+  User,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import UserAvatar from './UserAvatar';
 
 interface SidebarProps {
   className?: string;
@@ -67,6 +69,15 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
               <span>Post</span>
             </NavLink>
             <NavLink
+              to="/profile"
+              className={({ isActive }) => 
+                cn("ngc-sidebar-link", isActive && "active")
+              }
+            >
+              <User className="h-5 w-5" />
+              <span>Profile</span>
+            </NavLink>
+            <NavLink
               to="/settings"
               className={({ isActive }) => 
                 cn("ngc-sidebar-link", isActive && "active")
@@ -81,15 +92,13 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
       {/* User profile at bottom */}
       <div className="fixed bottom-0 w-64 border-t border-border p-4 bg-background">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-            <span className="font-medium text-sm">N</span>
-          </div>
+        <NavLink to="/profile" className="flex items-center gap-3">
+          <UserAvatar name="Alex Johnson" size="sm" className="h-10 w-10" />
           <div>
-            <p className="text-sm font-medium leading-none mb-1">Name</p>
-            <NavLink to="/profile" className="text-xs text-muted-foreground underline-offset-4 hover:underline">
+            <p className="text-sm font-medium leading-none mb-1">Alex Johnson</p>
+            <span className="text-xs text-muted-foreground underline-offset-4 hover:underline">
               View Profile
-            </NavLink>
+            </span>
           </div>
           <button className="ml-auto text-muted-foreground hover:text-foreground">
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -97,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
               <path d="M7 11C7 10.7239 7.22386 10.5 7.5 10.5C7.77614 10.5 8 10.7239 8 11C8 11.2761 7.77614 11.5 7.5 11.5C7.22386 11.5 7 11.2761 7 11Z" fill="currentColor"/>
             </svg>
           </button>
-        </div>
+        </NavLink>
       </div>
     </div>
   );
