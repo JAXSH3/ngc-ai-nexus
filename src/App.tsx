@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
+import Index from "./pages/Index"; // Ensure Index page is imported
 
 const queryClient = new QueryClient();
 
@@ -31,7 +33,8 @@ const App = () => (
             
             {/* Main app routes with Layout */}
             <Route path="/" element={<Layout />}>
-              <Route index element={<Dashboard />} />
+              <Route index element={<Index />} /> {/* Use Index as the default route */}
+              <Route path="dashboard" element={<Dashboard />} />
               <Route path="explore" element={<Explore />} />
               <Route path="community" element={<Community />} />
               <Route path="premium" element={<Premium />} />
