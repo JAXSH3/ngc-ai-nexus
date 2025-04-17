@@ -1,9 +1,13 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
+  useEffect(() => {
+    console.log("Index component mounted");
+  }, []);
+
   return (
     <div className="container mx-auto py-8">
       <div className="max-w-4xl mx-auto bg-card rounded-lg shadow-lg p-8 text-center">
