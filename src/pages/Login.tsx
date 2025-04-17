@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,13 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { Github, Chrome } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, signInWithProvider } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,6 +27,14 @@ const Login: React.FC = () => {
       // Error is handled in the auth context
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider: 'google' | 'github') => {
+    try {
+      await signInWithProvider(provider);
+    } catch (error) {
+      // Error is handled in the auth context
     }
   };
 
@@ -83,10 +93,18 @@ const Login: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline">
+          <Button 
+            variant="outline" 
+            onClick={() => handleSocialLogin('google')}
+          >
+            <Chrome className="mr-2 h-4 w-4" />
             Google
           </Button>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => handleSocialLogin('github')}
+          >
+            <Github className="mr-2 h-4 w-4" />
             GitHub
           </Button>
         </div>
