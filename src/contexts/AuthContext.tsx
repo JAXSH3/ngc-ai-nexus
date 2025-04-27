@@ -24,6 +24,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       setLoading(false)
+    }).catch((error) => {
+      console.error("Error getting session:", error)
+      setLoading(false)
     })
 
     // Listen for changes on auth state
@@ -59,12 +62,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })
       if (signUpError) throw signUpError
 
+      if (!data.user?.id) {
+        throw new Error("Failed to create user")
+      }
+
       // Create a profile record in the profiles table
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([
           {
-            id: data.user?.id,
+            id: data.user.id,
             first_name: firstName,
             last_name: lastName,
             email,
