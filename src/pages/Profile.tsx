@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,112 +6,169 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import UserAvatar from '@/components/UserAvatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Edit, BookmarkIcon, History, Settings } from 'lucide-react';
-
-// Mock user data - in a real app, this would come from your auth provider
-const mockUser = {
-  name: 'Alex Johnson',
-  email: 'alex@example.com',
-  bio: 'AI enthusiast and researcher focused on generative models and their applications.',
-  preferences: {
-    categories: ['AI Assistant', 'Image Generation', 'Data Science'],
-    theme: 'dark',
-  }
-};
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
 
 const Profile: React.FC = () => {
-  const [user, setUser] = useState(mockUser);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState(user);
+  const { toast } = useToast();
+  const {
+    user,
+    profile,
+    isLoading,
+    error,
+    updateProfile,
+    updating,
+  } = useUserProfile();
 
-  // Mock saved resources
-  const savedResources = [
-    { id: '1', title: 'ChatGPT', category: 'AI Assistant' },
-    { id: '2', title: 'Stable Diffusion', category: 'Image Generation' },
-    { id: '3', title: 'ML Fundamentals', category: 'Course' },
-  ];
+  const [isEditing, setIsEditing] = React.useState(false);
+  // Use local state for editable fields
+  const [editedProfile, setEditedProfile] = React.useState({
+    first_name: "",
+    last_name: "",
+    bio: "",
+  });
 
-  // Mock browsing history
-  const browsingHistory = [
-    { id: '1', title: 'GPT-4 Technical Report', timestamp: '2023-04-15' },
-    { id: '2', title: 'AI Image Classifier', timestamp: '2023-04-14' },
-    { id: '3', title: 'Data Science Prompt Pack', timestamp: '2023-04-13' },
-  ];
+  React.useEffect(() => {
+    if (profile) {
+      setEditedProfile({
+        first_name: profile.first_name || "",
+        last_name: profile.last_name || "",
+        bio: profile.bio || "",
+      });
+    }
+  }, [profile]);
 
   const handleEditToggle = () => {
-    if (isEditing) {
-      // Save changes
-      setUser(editedUser);
-    }
-    setIsEditing(!isEditing);
+    setIsEditing((editing) => !editing);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setEditedUser(prev => ({ ...prev, [name]: value }));
+    setEditedProfile((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
+
+  const handleSave = async () => {
+    if (!profile) return;
+    try {
+      await updateProfile({
+        id: profile.id,
+        first_name: editedProfile.first_name,
+        last_name: editedProfile.last_name,
+        bio: editedProfile.bio,
+      });
+      toast({
+        title: "Profile updated",
+        description: "Your profile changes were saved.",
+      });
+      setIsEditing(false);
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Update failed",
+        description: err.message,
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <span className="text-muted-foreground">Loading profile...</span>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <span className="text-red-500">
+          {error?.message || "Profile not found."}
+        </span>
+      </div>
+    );
+  }
+
+  // For display name, fallback to first+last, or email if no names
+  const displayName = `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || profile.email;
 
   return (
     <div className="container py-8 mx-auto">
       <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
-      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left column: User info */}
         <div className="md:col-span-1">
-          <Card className="mb-6">
-            <CardHeader className="pb-4">
-              <div className="flex justify-between items-center">
-                <CardTitle>Profile</CardTitle>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={handleEditToggle}
-                >
-                  <Edit className="h-5 w-5" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center mb-6">
-                <UserAvatar name={user.name} size="lg" className="mb-4" />
-                {isEditing ? (
-                  <Input 
-                    name="name"
-                    value={editedUser.name}
-                    onChange={handleInputChange}
-                    className="text-center mb-1"
-                  />
-                ) : (
-                  <h2 className="text-xl font-semibold mb-1">{user.name}</h2>
-                )}
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="bio">Bio</Label>
-                  {isEditing ? (
-                    <Input 
-                      id="bio"
-                      name="bio"
-                      value={editedUser.bio}
-                      onChange={handleInputChange}
-                      className="h-24"
-                    />
-                  ) : (
-                    <p className="text-sm mt-1">{user.bio}</p>
-                  )}
+          <div className="mb-6">
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex justify-between items-center">
+                  <CardTitle>Profile</CardTitle>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={handleEditToggle}
+                    disabled={updating}
+                  >
+                    <Edit className="h-5 w-5" />
+                  </Button>
                 </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              {isEditing && (
-                <Button className="w-full" onClick={handleEditToggle}>
-                  Save Changes
-                </Button>
-              )}
-            </CardFooter>
-          </Card>
-          
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col items-center mb-6">
+                  <UserAvatar name={displayName} size="lg" className="mb-4" />
+                  {isEditing ? (
+                    <>
+                      <div className="flex gap-2 w-full">
+                        <Input
+                          name="first_name"
+                          value={editedProfile.first_name}
+                          onChange={handleInputChange}
+                          placeholder="First Name"
+                        />
+                        <Input
+                          name="last_name"
+                          value={editedProfile.last_name}
+                          onChange={handleInputChange}
+                          placeholder="Last Name"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <h2 className="text-xl font-semibold mb-1">{displayName}</h2>
+                  )}
+                  <p className="text-sm text-muted-foreground">{profile.email}</p>
+                </div>
+                <div className="space-y-4 w-full">
+                  <div>
+                    <Label htmlFor="bio">Bio</Label>
+                    {isEditing ? (
+                      <Textarea
+                        id="bio"
+                        name="bio"
+                        value={editedProfile.bio}
+                        onChange={handleInputChange}
+                        className="mt-1"
+                        placeholder="Tell us about yourself"
+                        rows={4}
+                      />
+                    ) : (
+                      <p className="text-sm mt-1">{profile.bio || <span className="text-muted-foreground">No bio provided.</span>}</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter>
+                {isEditing && (
+                  <Button className="w-full" onClick={handleSave} loading={updating}>
+                    {updating ? "Saving..." : "Save Changes"}
+                  </Button>
+                )}
+              </CardFooter>
+            </Card>
+          </div>
           <Card>
             <CardHeader>
               <CardTitle>Preferences</CardTitle>
@@ -123,11 +179,9 @@ const Profile: React.FC = () => {
                 <div>
                   <Label>Interests</Label>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {user.preferences.categories.map((category) => (
-                      <div key={category} className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm">
-                        {category}
-                      </div>
-                    ))}
+                    {/* No dynamic categories yet; placeholder */}
+                    <div className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm">AI Assistant</div>
+                    <div className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm">Image Generation</div>
                     <Button variant="outline" size="sm" className="rounded-full">
                       + Add
                     </Button>
@@ -137,8 +191,7 @@ const Profile: React.FC = () => {
             </CardContent>
           </Card>
         </div>
-        
-        {/* Right column: Activity */}
+        {/* Right column: kept as in original */}
         <div className="md:col-span-2">
           <Tabs defaultValue="saved">
             <TabsList className="mb-6">
@@ -241,5 +294,30 @@ const Profile: React.FC = () => {
     </div>
   );
 };
+
+// Mock user data - in a real app, this would come from your auth provider
+const mockUser = {
+  name: 'Alex Johnson',
+  email: 'alex@example.com',
+  bio: 'AI enthusiast and researcher focused on generative models and their applications.',
+  preferences: {
+    categories: ['AI Assistant', 'Image Generation', 'Data Science'],
+    theme: 'dark',
+  }
+};
+
+// Mock saved resources
+const savedResources = [
+  { id: '1', title: 'ChatGPT', category: 'AI Assistant' },
+  { id: '2', title: 'Stable Diffusion', category: 'Image Generation' },
+  { id: '3', title: 'ML Fundamentals', category: 'Course' },
+];
+
+// Mock browsing history
+const browsingHistory = [
+  { id: '1', title: 'GPT-4 Technical Report', timestamp: '2023-04-15' },
+  { id: '2', title: 'AI Image Classifier', timestamp: '2023-04-14' },
+  { id: '3', title: 'Data Science Prompt Pack', timestamp: '2023-04-13' },
+];
 
 export default Profile;
