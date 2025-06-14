@@ -15,13 +15,14 @@ const Register: React.FC = () => {
   });
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<'google' | 'github' | null>(null);
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signUp, signInWithProvider } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!acceptedTerms) return;
-    
+
     setIsLoading(true);
     try {
       await signUp(
@@ -30,7 +31,8 @@ const Register: React.FC = () => {
         formData.firstName,
         formData.lastName
       );
-      navigate('/login');
+      // On successful register, redirect to profile
+      navigate('/profile');
     } catch (error) {
       // Error is handled in the auth context
     } finally {
@@ -44,6 +46,18 @@ const Register: React.FC = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleSocialSignUp = async (provider: 'google' | 'github') => {
+    setSocialLoading(provider);
+    try {
+      await signInWithProvider(provider, `${window.location.origin}/profile`);
+      // User will be redirected to /profile after OAuth
+    } catch (error) {
+      // Error handled in AuthContext
+    } finally {
+      setSocialLoading(null);
+    }
   };
 
   return (
@@ -148,11 +162,11 @@ const Register: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline">
-            Google
+          <Button variant="outline" onClick={() => handleSocialSignUp('google')} disabled={!!socialLoading}>
+            {socialLoading === 'google' ? 'Loading...' : 'Google'}
           </Button>
-          <Button variant="outline">
-            GitHub
+          <Button variant="outline" onClick={() => handleSocialSignUp('github')} disabled={!!socialLoading}>
+            {socialLoading === 'github' ? 'Loading...' : 'GitHub'}
           </Button>
         </div>
         

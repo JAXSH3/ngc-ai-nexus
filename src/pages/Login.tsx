@@ -10,8 +10,9 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<'google' | 'github' | null>(null);
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, signInWithProvider } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,11 +21,23 @@ const Login: React.FC = () => {
     
     try {
       await signIn(email, password);
-      navigate('/');
+      navigate('/profile');
     } catch (error) {
       // Error is handled in the auth context
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider: 'google' | 'github') => {
+    setSocialLoading(provider);
+    try {
+      await signInWithProvider(provider, `${window.location.origin}/profile`);
+      // After OAuth, user will be redirected to /profile
+    } catch (e) {
+      // Error display handled in AuthContext
+    } finally {
+      setSocialLoading(null);
     }
   };
 
@@ -83,11 +96,11 @@ const Login: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline">
-            Google
+          <Button variant="outline" onClick={() => handleSocialLogin('google')} disabled={!!socialLoading}>
+            {socialLoading === 'google' ? 'Loading...' : 'Google'}
           </Button>
-          <Button variant="outline">
-            GitHub
+          <Button variant="outline" onClick={() => handleSocialLogin('github')} disabled={!!socialLoading}>
+            {socialLoading === 'github' ? 'Loading...' : 'GitHub'}
           </Button>
         </div>
         
