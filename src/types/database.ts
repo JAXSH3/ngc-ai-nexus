@@ -5,6 +5,7 @@ export interface Profile {
   last_name: string
   email: string
   avatar_url?: string
+  bio?: string
   created_at: string
   updated_at: string
 }
@@ -29,3 +30,4 @@ export interface Post {
   created_at: string
   updated_at: string
 }
+

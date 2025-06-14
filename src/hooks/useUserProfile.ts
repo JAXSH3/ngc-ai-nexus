@@ -26,7 +26,8 @@ export function useUserProfile() {
         .eq("id", user.id)
         .single();
       if (error) throw error;
-      return data as Profile;
+      // Safely cast response
+      return data as unknown as Profile;
     },
   });
 
@@ -40,7 +41,8 @@ export function useUserProfile() {
         .select()
         .single();
       if (error) throw error;
-      return data as Profile;
+      // Safely cast response
+      return data as unknown as Profile;
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["profile", data.id], data);
@@ -56,3 +58,4 @@ export function useUserProfile() {
     updating: updateProfile.isPending,
   };
 }
+

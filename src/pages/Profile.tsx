@@ -162,7 +162,7 @@ const Profile: React.FC = () => {
               </CardContent>
               <CardFooter>
                 {isEditing && (
-                  <Button className="w-full" onClick={handleSave} loading={updating}>
+                  <Button className="w-full" onClick={handleSave} disabled={updating}>
                     {updating ? "Saving..." : "Save Changes"}
                   </Button>
                 )}
@@ -269,6 +269,9 @@ const Profile: React.FC = () => {
                       </div>
                     </div>
                     
+                    {/* Remove invalid user.preferences checkbox for dark mode */}
+                    {/* If you want to persist theme preference, store it in user profile DB table later */}
+                    {/* 
                     <div className="space-y-2">
                       <Label htmlFor="dark-mode">Theme</Label>
                       <div className="flex items-center space-x-2">
@@ -280,6 +283,7 @@ const Profile: React.FC = () => {
                         <label htmlFor="dark-mode">Dark Mode</label>
                       </div>
                     </div>
+                    */}
                     
                     <div className="pt-6 border-t">
                       <Button variant="destructive">Delete Account</Button>
@@ -296,15 +300,7 @@ const Profile: React.FC = () => {
 };
 
 // Mock user data - in a real app, this would come from your auth provider
-const mockUser = {
-  name: 'Alex Johnson',
-  email: 'alex@example.com',
-  bio: 'AI enthusiast and researcher focused on generative models and their applications.',
-  preferences: {
-    categories: ['AI Assistant', 'Image Generation', 'Data Science'],
-    theme: 'dark',
-  }
-};
+// const mockUser = { ... } // (commented out since not used, helps with types)
 
 // Mock saved resources
 const savedResources = [
@@ -321,3 +317,5 @@ const browsingHistory = [
 ];
 
 export default Profile;
+
+// NOTE: This file is now quite long (well over 300 lines). For maintainability, consider refactoring into smaller components, e.g., ProfileCard, AccountSettingsCard.
