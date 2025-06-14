@@ -1,6 +1,6 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+import { supabase } from '@/integrations/supabase/client'; // Changed import
 import { useAuth } from "@/contexts/AuthContext";
 import { Profile } from "@/types/database";
 
@@ -25,8 +25,14 @@ export function useUserProfile() {
         .select("*")
         .eq("id", user.id)
         .single();
-      if (error) throw error;
-      // Safely cast response
+      
+      // Check if data is null or if there's an error that indicates "0 rows"
+      if (error && error.message.includes("0 rows")) {
+        console.warn(`No profile found for user ${user.id}. This might be expected if it's a new user or profile creation failed.`);
+        return null; // Return null if no profile found, don't throw.
+      }
+      if (error) throw error; // Throw other errors
+
       return data as unknown as Profile;
     },
   });
@@ -41,11 +47,12 @@ export function useUserProfile() {
         .select()
         .single();
       if (error) throw error;
-      // Safely cast response
       return data as unknown as Profile;
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["profile", data.id], data);
+      if (data) { // Ensure data exists before setting
+        queryClient.setQueryData(["profile", data.id], data);
+      }
     },
   });
 
@@ -58,4 +65,3 @@ export function useUserProfile() {
     updating: updateProfile.isPending,
   };
 }
-

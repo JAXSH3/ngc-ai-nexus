@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/integrations/supabase/client' // Changed import
 import { useToast } from '@/components/ui/use-toast'
 
 interface AuthContextType {
@@ -23,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+      // No need to set loading to false here again, getSession will handle it.
     })
 
     // Set initial user
@@ -31,11 +32,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false)
     }).catch((error) => {
       console.error("Error getting session:", error)
+      toast({ // Added toast for session error
+        variant: "destructive",
+        title: "Session Error",
+        description: "Could not retrieve your session. Please try refreshing.",
+      })
       setLoading(false)
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [toast]) // Added toast to dependency array
 
   const signIn = async (email: string, password: string) => {
     try {
